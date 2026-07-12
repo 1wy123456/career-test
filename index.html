@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>你该打工还是创业？</title>
+<style>
+:root {
+  --bg: #f7f8fc;
+  --card: #ffffff;
+  --text: #1a1a2e;
+  --sub: #8e8ea0;
+  --accent: #e74c3c;
+  --accent-light: #fde8e8;
+  --border: #e8e8f0;
+  --shadow: 0 2px 12px rgba(0,0,0,0.06);
+  --radius: 16px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans GB', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-bg {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-image:
+    linear-gradient(rgba(100,120,180,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(100,120,180,0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg);
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid transparent;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.header-counter {
+  font-size: 13px;
+  color: var(--sub);
+  font-weight: 500;
+}
+
+.header-title {
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.progress-bar {
+  width: 100%;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main {
+  position: relative;
+  z-index: 1;
+  padding: 0 20px 100px;
+}
+
+.question-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 28px 24px 20px;
+  box-shadow: var(--shadow);
+  margin-top: 16px;
+  animation: fadeInUp 0.35s ease;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.question-number {
+  font-size: 72px;
+  font-weight: 800;
+  color: rgba(26,26,46,0.04);
+  line-height: 1;
+  margin-bottom: -20px;
+  position: relative;
+  z-index: 0;
+}
+
+.question-text {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.6;
+  color: var(--text);
+  position: relative;
+  z-index: 1;
+  margin-bottom: 24px;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #fafafc;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.option:active { transform: scale(0.98); }
+
+.option.selected {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.option.selected .option-letter {
+  background: var(--accent);
+  color: white;
+}
+
+.option-letter {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #eef0f8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--sub);
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.option-text {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.bottom-hint {
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.start-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.start-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.start-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+
+.start-title .red { color: var(--accent); }
+
+.start-sub {
+  font-size: 14px;
+  color: var(--sub);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.start-info {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.start-info-item { text-align: center; }
+
+.start-info-num {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.start-info-label {
+  font-size: 11px;
+  color: var(--sub);
+  margin-top: 2px;
+}
+
+.btn-start {
+  width: 100%;
+  max-width: 280px;
+  padding: 16px 32px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-size: 17px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+}
+
+.btn-start:active { transform: scale(0.96); opacity: 0.9; }
+
+.expired-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 80vh;
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.expired-icon { font-size: 64px; margin-bottom: 24px; }
+
+.expired-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+
+.expired-sub {
+  font-size: 14px;
+  color: var(--sub);
+  line-height: 1.6;
+}
+
+.result-screen {
+  padding: 20px;
+  animation: fadeInUp 0.5s ease;
+}
+
+.result-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.result-emoji { font-size: 72px; margin-bottom: 12px; }
+
+.result-type {
+  display: inline-block;
+  padding: 6px 16px;
+  background: var(--accent-light);
+  color: var(--accent);
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.result-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.result-subtitle { font-size: 14px; color: var(--sub); }
+
+.result-card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 12px;
+}
+
+.result-card h3 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-card p {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.7;
+}
+
+.score-bar-wrap { margin: 12px 0; }
+
+.score-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--sub);
+  margin-bottom: 4px;
+}
+
+.score-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.score-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3498db, var(--accent));
+  border-radius: 4px;
+  transition: width 0.8s ease;
+}
+
+.stars { font-size: 20px; letter-spacing: 2px; }
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tag {
+  padding: 4px 12px;
+  background: #f0f2f8;
+  border-radius: 12px;
+  font-size: 12px;
+  color: var(--sub);
+}
+
+.btn-share {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s;
+}
+
+.btn-share:active { opacity: 0.9; }
+
+.lock-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.03);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lock-overlay.hidden { display: none; }
+
+.lock-card {
+  background: white;
+  border-radius: 20px;
+  padding: 32px 24px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.12);
+  max-width: 320px;
+  width: 90%;
+}
+
+.lock-icon { font-size: 56px; margin-bottom: 16px; }
+
+.lock-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.lock-sub {
+  font-size: 13px;
+  color: var(--sub);
+  line-height: 1.6;
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="grid-bg"></div>
+
+  <div class="header" id="header" style="display:none">
+    <div class="header-top">
+      <span class="header-counter" id="counter">01 / 20</span>
+      <span class="header-title">打工还是创业 - 职业基因诊断</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress" style="width:0%"></div>
+    </div>
+  </div>
+
+  <div class="main" id="main"></div>
+</div>
+
+<div class="lock-overlay hidden" id="lockOverlay">
+  <div class="lock-card">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">链接已失效</div>
+    <div class="lock-sub">此测试链接为一次性使用，已完成测试或已被使用。</div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ===== TOKEN SYSTEM =====
+  // Token is embedded in the URL: ?token=XXXX
+  // Once completed, result is stored in localStorage keyed by token
+  // Same token can only be completed once
+
+  var urlParams = new URLSearchParams(window.location.search);
+  var TOKEN = ***'token');
+
+  // Storage key prefix
+  var STORAGE_PREFIX = 'onetest_';
+
+  function markTokenUsed(token, result) {
+    try {
+      var data = {
+        used: true,
+        completedAt: Date.now(),
+        result: result
+      };
+      localStorage.setItem(STORAGE_PREFIX + token, JSON.stringify(data));
+    } catch(e) {}
+  }
+
+  function isTokenUsed(token) {
+    try {
+      var raw = localStorage.getItem(STORAGE_PREFIX + token);
+      if (!raw) return false;
+      var data = JSON.parse(raw);
+      return data.used === true;
+    } catch(e) {
+      return false;
+    }
+  }
+
+  function getTokenData(token) {
+    try {
+      var raw = localStorage.getItem(STORAGE_PREFIX + token);
+      if (!raw) return null;
+      return JSON.parse(raw);
+    } catch(e) {
+      return null;
+    }
+  }
+
+  // ===== QUESTIONS =====
+  var questions = [
+    { q: '如果未来三年必须继续从事当前方向，你的第一反应更接近：', opts: ['有种窒息感', '虽然累，但还有期待', '觉得自己可能错过别的机会', '想把现在经验用到别的领域'] },
+    { q: '你对稳定的态度是？', opts: ['稳定是安全感的基础，我需要它', '稳定挺好，但偶尔的波动也能接受', '稳定让我感到窒息，我需要变化', '看情况，不同阶段需求不同'] },
+    { q: '面对未知和不确定性，你的第一反应是？', opts: ['焦虑，想尽快找到确定性', '紧张但会尝试分析应对', '兴奋，未知意味着机会', '先观察，再决定如何反应'] },
+    { q: '你对规则的看法？', opts: ['规则是秩序的保障，应该遵守', '合理的遵守，不合理的质疑', '规则就是用来打破的', '规则是工具，不是目的'] },
+    { q: '你如何看待失败？', opts: ['失败很可怕，我会尽量避免冒险', '失败是学习机会，但希望少经历', '失败是成功之母，我敢于试错', '小失败可以接受，大失败不能'] },
+    { q: '当有人质疑你的想法时，你通常？', opts: ['认真考虑对方意见，可能调整自己', '听取但坚持自己认为对的', '这反而激发我更想证明自己', '看质疑者是谁再决定态度'] },
+    { q: '你对钱的态度是？', opts: ['稳定收入比不确定高回报重要', '愿意用部分稳定换更高收益', '愿意承担风险博取更大回报', '钱是工具，够用就行'] },
+    { q: '你更享受哪种工作方式？', opts: ['有明确指令和流程，按部就班', '有大致方向，具体方式自己决定', '完全自主，从0到1创造', '根据项目灵活切换'] },
+    { q: '面对一个全新领域，你的做法是？', opts: ['先学习足够知识再行动', '边学边做，在实践中学习', '直接跳进去，在游泳中学会游泳', '找有经验的人带一带'] },
+    { q: '你如何对待截止日期？', opts: ['提前完成，留足缓冲时间', '按时完成，偶尔会踩线', '截止日期是第一生产力', '看任务重要性决定投入'] },
+    { q: '当你有一个新想法时，你首先想的是？', opts: ['这个想法有什么风险？', '这个想法能解决什么问题？', '太棒了！怎么马上开始做？', '有没有人已经做过了？'] },
+    { q: '你如何看待团队合作？', opts: ['团队配合让我更有安全感', '喜欢团队，但也需要独立空间', '更相信自己的判断和执行力', '看团队成员质量决定'] },
+    { q: '你对加班的态度是？', opts: ['尽量避免，工作不是生活全部', '必要时可以，但要有补偿', '为自己的事业，加班是常态', '效率比时长重要'] },
+    { q: '你如何看待竞争？', opts: ['竞争让我有压力，更喜欢合作', '良性竞争可以，过度让人疲惫', '竞争让我兴奋，我想赢', '竞争是常态，平常心对待'] },
+    { q: '当事情不按计划进行时，你？', opts: ['感到不安，想尽快回到正轨', '调整计划，适应新情况', '随机应变，计划本来就不是死的', '先停下来重新评估'] },
+    { q: '你更相信什么来做决策？', opts: ['数据和经验', '数据和直觉结合', '直觉和信念', '听取多方意见后决定'] },
+    { q: '你对长期规划的态度？', opts: ['有清晰的5年、10年规划', '有大方向，但不会太细致', '计划赶不上变化，走一步看一步', '有规划但保持灵活调整'] },
+    { q: '你如何看待资源？', opts: ['没有足够资源就不该贸然行动', '有多少资源做多少事', '资源是创造出来的，不是等来的', '先盘点资源再制定策略'] },
+    { q: '当别人都在做一件事时，你？', opts: ['跟随主流比较安全', '了解后再决定是否参与', '别人都做的我就不想做了', '看是否适合自己再决定'] },
+    { q: '你内心深处，最害怕的是什么？', opts: ['失去稳定的收入和生活保障', '在舒适区里平庸地度过一生', '全力以赴后仍然失败', '做出错误的选择而后悔'] }
+  ];
+
+  var scores = [1, 2, 3, 2];
+
+  var results = [
+    {
+      range: [20, 30], type: '天生打工人', emoji: '\uD83C\uDFE2',
+      title: '稳健执行者', subtitle: '你在结构化环境中如鱼得水', stars: 1,
+      desc: '你是一个天生的体系内人才。你重视稳定、秩序和可预测性，在结构化的工作环境中如鱼得水。你擅长在既定框架内把事情做到极致，是任何组织都需要的可靠力量。',
+      advice: '最适合在成熟的大中型企业、国企、事业单位发展。选择有明确职业阶梯的行业，如金融、IT大厂、制造业、医疗等。目前不建议创业，但可以从副业开始小步试错。',
+      tags: ['执行力强', '靠谱', '风险意识好', '团队协作']
+    },
+    {
+      range: [31, 37], type: '稳健偏打工', emoji: '\uD83C\uDFE2\u27A1\uFE0F\uD83D\uDE80',
+      title: '谨慎的探索者', subtitle: '骑驴找马的平衡高手', stars: 2,
+      desc: '你本质上倾向于稳定，但内心有一颗不安分的种子。你会在确保安全的前提下尝试新事物，是那种骑驴找马的典型。你不会贸然辞职创业，但可能会在工作之余发展副业。',
+      advice: '适合在有一定灵活性的大中型企业，或处于成长期的创业公司做早期员工。建议保持主业的同时，用业余时间探索副业方向，月收入稳定超过主业2-3倍后再考虑全职创业。',
+      tags: ['理性决策', '适应力强', '平衡感好', '谨慎探索']
+    },
+    {
+      range: [38, 44], type: '纠结中间派', emoji: '\u2696\uFE0F',
+      title: '矛盾的综合体', subtitle: '在安稳与自由之间摇摆', stars: 3,
+      desc: '你是最纠结的一类人——既渴望自由的创业生活，又放不下打工的安全感。你对两边都有深刻的理解，但也因此最难做出选择。你可能是那种在大厂工作了几年，每天都在想要不要辞职的人。',
+      advice: '最适合内部创业或合伙人模式——在有资源支持的组织内负责新业务线，或找一个互补的合伙人一起创业。也可以考虑自由职业者/独立顾问路线。不建议单打独斗。',
+      tags: ['思维灵活', '学习力强', '人脉广', '决策纠结']
+    },
+    {
+      range: [45, 51], type: '偏创业型', emoji: '\uD83D\uDE80',
+      title: '不安分的创造者', subtitle: '骨子里流淌着创业的血液', stars: 4,
+      desc: '你骨子里是一个创业者。你享受不确定性带来的刺激，相信自己的判断，愿意为更大的回报承担风险。打工对你来说更多是积累期而非归宿。你可能已经在做副业，或至少有过创业的想法和尝试。',
+      advice: '强烈建议创业。如果还在打工，尽快开始副业或筹备创业。选择正确的赛道比努力更重要；控制现金流是生存关键；找一个互补的合伙人弥补你的短板。',
+      tags: ['主动性强', '机会敏感', '抗压力强', '执行力强']
+    },
+    {
+      range: [52, 60], type: '天生创业者', emoji: '\uD83D\uDD25',
+      title: '为创业而生', subtitle: '不创业就浑身难受', stars: 5,
+      desc: '你是那种不创业就浑身难受的人。稳定对你来说是折磨，规则对你来说是枷锁。你有强烈的内在驱动力，相信自己的直觉，敢于在别人恐惧时行动。你就是为创业而生的。',
+      advice: '你几乎不适合长期打工。尽快找到方向并开始行动。但注意：激情不等于能力，找一个冷静的合伙人帮你踩刹车；保证至少6-12个月生活费储备；先验证需求再大规模投入。',
+      tags: ['驱动力极强', '敢于冒险', '创新力强', '感染力强']
+    }
+  ];
+
+  var currentQuestion = 0;
+  var answers = [];
+  var totalScore = 0;
+  var letters = ['A', 'B', 'C', 'D'];
+  var testStarted = false;
+  var testCompleted = false;
+
+  // ===== VALIDATE TOKEN =====
+  function checkToken() {
+    if (!TOKEN) {
+      showExpired('缺少访问凭证', '请使用正确的测试链接访问。');
+      return false;
+    }
+
+    if (isTokenUsed(TOKEN)) {
+      var data = getTokenData(TOKEN);
+      var timeStr = data && data.completedAt
+        ? new Date(data.completedAt).toLocaleString('zh-CN')
+        : '';
+      lockPage('链接已失效', '此测试链接为一次性使用，已于 ' + timeStr + ' 完成。如需重新测试请联系管理员获取新链接。', '\uD83D\uDD12');
+      showExpired('链接已失效', '此测试链接为一次性使用，已完成测试。');
+      return false;
+    }
+
+    return true;
+  }
+
+  // ===== RENDER =====
+  function showExpired(title, sub, icon) {
+    var main = document.getElementById('main');
+    document.getElementById('header').style.display = 'none';
+    main.innerHTML = '<div class="expired-screen">' +
+      '<div class="expired-icon">' + (icon || '\uD83D\uDD12') + '</div>' +
+      '<div class="expired-title">' + title + '</div>' +
+      '<div class="expired-sub">' + sub + '</div>' +
+    '</div>';
+  }
+
+  function lockPage(title, sub, icon) {
+    var overlay = document.getElementById('lockOverlay');
+    document.getElementById('lockIcon').textContent = icon || '\uD83D\uDD12';
+    document.getElementById('lockTitle').textContent = title;
+    document.getElementById('lockSub').textContent = sub;
+    overlay.classList.remove('hidden');
+  }
+
+  function renderStart() {
+    var main = document.getElementById('main');
+    var header = document.getElementById('header');
+    header.style.display = 'none';
+    main.innerHTML = '<div class="start-screen">' +
+      '<div class="start-icon">\uD83E\uDD14</div>' +
+      '<div class="start-title">你该<span class="red">打工</span><br>还是<span class="red">创业</span>？</div>' +
+      '<div class="start-sub">20道深度人格分析题<br>精准定位你的职业基因</div>' +
+      '<div class="start-info">' +
+        '<div class="start-info-item"><div class="start-info-num">20</div><div class="start-info-label">道题目</div></div>' +
+        '<div class="start-info-item"><div class="start-info-num">5</div><div class="start-info-label">种结果</div></div>' +
+        '<div class="start-info-item"><div class="start-info-num">~3min</div><div class="start-info-label">预计用时</div></div>' +
+      '</div>' +
+      '<div class="start-sub" style="font-size:11px;color:#c0c0c0;margin-top:-20px;margin-bottom:20px;">\u26A0\uFE0F 此链接仅可使用一次，完成后自动失效</div>' +
+      '<button class="btn-start" id="btnStart">开始测试</button>' +
+    '</div>';
+
+    document.getElementById('btnStart').addEventListener('click', function() {
+      testStarted = true;
+      startTest();
+    });
+  }
+
+  function renderQuestion(idx) {
+    var q = questions[idx];
+    var main = document.getElementById('main');
+    var header = document.getElementById('header');
+    header.style.display = 'block';
+    document.getElementById('counter').textContent = String(idx+1).padStart(2,'0') + ' / 20';
+    document.getElementById('progress').style.width = ((idx)/20*100) + '%';
+
+    var html = '<div class="question-card">' +
+      '<div class="question-number">' + String(idx+1).padStart(2,'0') + '</div>' +
+      '<div class="question-text">' + q.q + '</div>' +
+      '<div class="options">';
+
+    for (var i = 0; i < q.opts.length; i++) {
+      html += '<div class="option" data-idx="' + i + '">' +
+        '<div class="option-letter">' + letters[i] + '</div>' +
+        '<div class="option-text">' + q.opts[i] + '</div>' +
+      '</div>';
+    }
+    html += '</div></div><div class="bottom-hint">选择后自动进入下一题</div>';
+
+    main.innerHTML = html;
+
+    var opts = main.querySelectorAll('.option');
+    for (var j = 0; j < opts.length; j++) {
+      (function(optEl, qIdx) {
+        optEl.addEventListener('click', function() {
+          if (this.classList.contains('selected')) return;
+          var allOpts = this.parentElement.querySelectorAll('.option');
+          for (var k = 0; k < allOpts.length; k++) {
+            allOpts[k].classList.remove('selected');
+          }
+          this.classList.add('selected');
+          var optIdx = parseInt(this.getAttribute('data-idx'));
+          answers[qIdx] = optIdx;
+          totalScore += scores[optIdx];
+
+          setTimeout(function() {
+            if (qIdx < questions.length - 1) {
+              currentQuestion = qIdx + 1;
+              renderQuestion(currentQuestion);
+            } else {
+              completeTest();
+            }
+          }, 350);
+        });
+      })(opts[j], idx);
+    }
+  }
+
+  function completeTest() {
+    testCompleted = true;
+    document.getElementById('progress').style.width = '100%';
+    document.getElementById('counter').textContent = '20 / 20';
+
+    var result = null;
+    for (var i = 0; i < results.length; i++) {
+      if (totalScore >= results[i].range[0] && totalScore <= results[i].range[1]) {
+        result = results[i];
+        break;
+      }
+    }
+
+    // Mark token as used in localStorage
+    markTokenUsed(TOKEN, {
+      type: result.type,
+      title: result.title,
+      score: totalScore
+    });
+
+    showResult(result);
+  }
+
+  function showResult(result) {
+    var main = document.getElementById('main');
+    var header = document.getElementById('header');
+    header.style.display = 'none';
+
+    var starStr = '';
+    for (var s = 0; s < result.stars; s++) starStr += '\u2B50';
+    for (var s2 = result.stars; s2 < 5; s2++) starStr += '\u2606';
+
+    var tagsHtml = '';
+    for (var t = 0; t < result.tags.length; t++) {
+      tagsHtml += '<span class="tag">' + result.tags[t] + '</span>';
+    }
+
+    var scorePercent = ((totalScore - 20) / 40 * 100);
+
+    main.innerHTML = '<div class="result-screen">' +
+      '<div class="result-header">' +
+        '<div class="result-emoji">' + result.emoji + '</div>' +
+        '<div class="result-type">' + result.type + '</div>' +
+        '<div class="result-title">' + result.title + '</div>' +
+        '<div class="result-subtitle">' + result.subtitle + '</div>' +
+      '</div>' +
+      '<div class="result-card">' +
+        '<h3>\uD83D\uDCCA 创业适配度</h3>' +
+        '<div class="stars">' + starStr + '</div>' +
+        '<div class="score-bar-wrap">' +
+          '<div class="score-bar-label"><span>打工倾向</span><span>创业倾向</span></div>' +
+          '<div class="score-bar"><div class="score-bar-fill" style="width:' + scorePercent + '%"></div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="result-card">' +
+        '<h3>\uD83E\uDDEC 职业基因分析</h3>' +
+        '<p>' + result.desc + '</p>' +
+      '</div>' +
+      '<div class="result-card">' +
+        '<h3>\uD83D\uDCA1 行动建议</h3>' +
+        '<p>' + result.advice + '</p>' +
+      '</div>' +
+      '<div class="result-card">' +
+        '<h3>\uD83C\uDFF7\uFE0F 你的优势标签</h3>' +
+        '<div class="tags">' + tagsHtml + '</div>' +
+      '</div>' +
+      '<button class="btn-share" id="btnShare">\uD83D\uDCE4 分享结果</button>' +
+    '</div>';
+
+    document.getElementById('btnShare').addEventListener('click', shareResult);
+  }
+
+  function startTest() {
+    currentQuestion = 0;
+    answers = [];
+    totalScore = 0;
+    renderQuestion(0);
+  }
+
+  function shareResult() {
+    var result = null;
+    for (var i = 0; i < results.length; i++) {
+      if (totalScore >= results[i].range[0] && totalScore <= results[i].range[1]) {
+        result = results[i];
+        break;
+      }
+    }
+    var starEmoji = '';
+    for (var s = 0; s < result.stars; s++) starEmoji += '\u2B50';
+    var text = '\uD83D\uDD0D 我测了"你该打工还是创业"，结果是：' + result.emoji + ' ' + result.type + '——' + result.title + '\n创业适配度：' + starEmoji;
+    if (navigator.share) {
+      navigator.share({ title: '你该打工还是创业？', text: text });
+    } else {
+      navigator.clipboard.writeText(text).then(function() {
+        alert('结果已复制到剪贴板！');
+      });
+    }
+  }
+
+  // ===== INIT =====
+  if (checkToken()) {
+    renderStart();
+  }
+
+  window.addEventListener('beforeunload', function(e) {
+    if (testStarted && !testCompleted) {
+      e.preventDefault();
+      e.returnValue = '测试进行中，离开将丢失进度。';
+      return e.returnValue;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
