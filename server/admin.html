@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测试管理后台</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Microsoft YaHei', sans-serif;
+  background: #f5f5f5;
+  color: #333;
+  padding: 20px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+h1 { font-size: 24px; margin-bottom: 8px; }
+.sub { color: #999; font-size: 13px; margin-bottom: 24px; }
+
+.card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.btn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-primary { background: #e74c3c; color: white; }
+.btn-primary:hover { background: #c0392b; }
+.btn-copy { background: #3498db; color: white; margin-left: 8px; }
+.btn-copy:hover { background: #2980b9; }
+
+.token-box {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  margin: 12px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.token-url {
+  flex: 1;
+  font-family: monospace;
+  font-size: 13px;
+  color: #2c3e50;
+  word-break: break-all;
+  background: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+th {
+  text-align: left;
+  padding: 10px 12px;
+  background: #f8f9fa;
+  border-bottom: 2px solid #e0e0e0;
+  font-weight: 600;
+  color: #666;
+}
+
+td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.badge-active { background: #d4edda; color: #155724; }
+.badge-used { background: #f8d7da; color: #721c24; }
+
+.empty { text-align: center; color: #999; padding: 40px; }
+
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #333;
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 999;
+  animation: fadeIn 0.3s;
+}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+</style>
+</head>
+<body>
+
+<h1>🔐 测试管理后台</h1>
+<div class="sub">你该打工还是创业？ - 一次性测试链接管理</div>
+
+<div class="card">
+  <h2 style="font-size:16px;margin-bottom:12px;">➕ 创建新测试链接</h2>
+  <p style="color:#888;font-size:13px;margin-bottom:12px;">每次点击生成一个唯一的一次性链接，用户完成测试后自动失效。</p>
+  <button class="btn btn-primary" onclick="createToken()">生成一次性链接</button>
+  <div id="newTokenArea" style="margin-top:12px;"></div>
+</div>
+
+<div class="card">
+  <h2 style="font-size:16px;margin-bottom:12px;">📋 所有测试链接</h2>
+  <button class="btn" style="background:#eee;color:#333;margin-bottom:12px;" onclick="refreshTokens()">刷新列表</button>
+  <div id="tokenList"></div>
+</div>
+
+<script>
+var BASE = '';
+
+function showToast(msg) {
+  var t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(function() { t.remove(); }, 2000);
+}
+
+function createToken() {
+  var btn = event.target;
+  btn.disabled = true;
+  btn.textContent = '生成中...';
+
+  fetch('/api/create-token', { method: 'POST' })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var url = window.location.origin + data.url;
+      document.getElementById('newTokenArea').innerHTML =
+        '<div class="token-box">' +
+          '<span style="font-size:13px;color:#666;">测试链接：</span>' +
+          '<span class="token-url" id="newUrl">' + url + '</span>' +
+          '<button class="btn btn-copy" onclick="copyUrl(\'newUrl\')">复制链接</button>' +
+        '</div>';
+      refreshTokens();
+    })
+    .catch(function(e) {
+      alert('创建失败: ' + e.message);
+    })
+    .finally(function() {
+      btn.disabled = false;
+      btn.textContent = '生成一次性链接';
+    });
+}
+
+function copyUrl(id) {
+  var el = document.getElementById(id);
+  var text = el.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    showToast('链接已复制到剪贴板！');
+  });
+}
+
+function refreshTokens() {
+  fetch('/api/tokens')
+    .then(function(r) { return r.json(); })
+    .then(function(tokens) {
+      var keys = Object.keys(tokens);
+      if (keys.length === 0) {
+        document.getElementById('tokenList').innerHTML = '<div class="empty">暂无测试链接，点击上方按钮生成</div>';
+        return;
+      }
+
+      keys.sort(function(a, b) {
+        return tokens[b].created - tokens[a].created;
+      });
+
+      var html = '<table><tr><th>Token</th><th>状态</th><th>创建时间</th><th>完成时间</th><th>结果</th><th>操作</th></tr>';
+      for (var i = 0; i < keys.length; i++) {
+        var t = tokens[keys[i]];
+        var statusBadge = t.used
+          ? '<span class="badge badge-used">已使用</span>'
+          : '<span class="badge badge-active">可用</span>';
+        var created = new Date(t.created).toLocaleString('zh-CN');
+        var completed = t.completedAt ? new Date(t.completedAt).toLocaleString('zh-CN') : '-';
+        var resultText = t.result ? (t.result.type + ' / ' + t.result.title) : '-';
+        var url = window.location.origin + '/test.html?token=' + keys[i];
+        html += '<tr>' +
+          '<td style="font-family:monospace;font-size:11px;">' + keys[i].substring(0, 12) + '...</td>' +
+          '<td>' + statusBadge + '</td>' +
+          '<td>' + created + '</td>' +
+          '<td>' + completed + '</td>' +
+          '<td>' + resultText + '</td>' +
+          '<td><a href="' + url + '" target="_blank" style="color:#3498db;">' + (t.used ? '查看' : '打开') + '</a></td>' +
+        '</tr>';
+      }
+      html += '</table>';
+      document.getElementById('tokenList').innerHTML = html;
+    })
+    .catch(function(e) {
+      document.getElementById('tokenList').innerHTML = '<div class="empty">加载失败: ' + e.message + '</div>';
+    });
+}
+
+// Init
+refreshTokens();
+</script>
+
+</body>
+</html>

@@ -476,12 +476,17 @@ body {
   'use strict';
 
   // ===== TOKEN SYSTEM =====
-  // Token is embedded in the URL: ?token=XXXX
+  // Token can be in: ?token=XXX or #token=XXX
   // Once completed, result is stored in localStorage keyed by token
   // Same token can only be completed once
 
+  var TOKEN = null;
   var urlParams = new URLSearchParams(window.location.search);
-  var TOKEN = ***'token');
+  TOKEN ***'token');
+  if (!TOKEN) {
+    var h = window.location.hash;
+    if (h) { var hp = new URLSearchParams(h.replace('#','')); TOKEN = ***'token'); }
+  }
 
   // Storage key prefix
   var STORAGE_PREFIX = 'onetest_';
@@ -589,23 +594,8 @@ body {
   var testStarted = false;
   var testCompleted = false;
 
-  // ===== VALIDATE TOKEN =====
+  // ===== TOKEN DISABLED - 开放访问 =====
   function checkToken() {
-    if (!TOKEN) {
-      showExpired('缺少访问凭证', '请使用正确的测试链接访问。');
-      return false;
-    }
-
-    if (isTokenUsed(TOKEN)) {
-      var data = getTokenData(TOKEN);
-      var timeStr = data && data.completedAt
-        ? new Date(data.completedAt).toLocaleString('zh-CN')
-        : '';
-      lockPage('链接已失效', '此测试链接为一次性使用，已于 ' + timeStr + ' 完成。如需重新测试请联系管理员获取新链接。', '\uD83D\uDD12');
-      showExpired('链接已失效', '此测试链接为一次性使用，已完成测试。');
-      return false;
-    }
-
     return true;
   }
 
